@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Kart Racing</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+        }
+        #gameContainer {
+            text-align: center;
+        }
+        canvas {
+            border: 4px solid #16213e;
+            background: #0f3460;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        #ui {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .stat {
+            display: inline-block;
+            margin: 0 15px;
+            padding: 10px 20px;
+            background: #16213e;
+            border-radius: 5px;
+        }
+        #startScreen {
+            position: absolute;
+            background: rgba(0,0,0,0.8);
+            padding: 40px;
+            border-radius: 10px;
+            z-index: 10;
+        }
+        #startScreen h1 {
+            margin: 0 0 20px 0;
+            font-size: 36px;
+            color: #e94560;
+        }
+        #startScreen button {
+            padding: 15px 30px;
+            font-size: 20px;
+            background: #e94560;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+        #startScreen button:hover {
+            background: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="startScreen">
+            <h1>🏁 RETRO KART RACING 🏁</h1>
+            <p>Arrow Keys to Drive</p>
+            <p>Space to Boost</p>
+            <button onclick="startGame()">START RACE</button>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="ui">
+            <span class="stat">LAP: <span id="lap">1/3</span></span>
+            <span class="stat">SPEED: <span id="speed">0</span> km/h</span>
+            <span class="stat">POSITION: <span id="position">1/4</span></span>
+            <span class="stat">TIME: <span id="time">0:00</span></span>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
