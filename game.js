@@ -1853,6 +1853,11 @@ function startGame() {
   game.reset();
   gameState.countdown = 3;
   
+  // Start the game loop if not already running
+  if (!game.lastTime) {
+    game.start();
+  }
+  
   // Resize after hiding start screen
   setTimeout(resizeCanvas, 50);
 }
@@ -1860,19 +1865,21 @@ function startGame() {
 // Make startGame globally accessible
 window.startGame = startGame;
 
-// Auto-start when DOM is ready
+// Remove loading screen when DOM is ready (but don't start game yet)
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    game.start();
-    // Remove loading screen
     const loadingScreen = document.getElementById('loadingScreen');
     if (loadingScreen) loadingScreen.style.display = 'none';
+    
+    // Initialize game (but don't start the loop)
+    game.init();
   });
 } else {
-  game.start();
-  // Remove loading screen
   const loadingScreen = document.getElementById('loadingScreen');
   if (loadingScreen) loadingScreen.style.display = 'none';
+  
+  // Initialize game (but don't start the loop)
+  game.init();
 }
 
 // Export for module usage
