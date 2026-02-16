@@ -2,83 +2,547 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a1a2e">
     <title>Retro Kart Racing</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
             margin: 0;
             padding: 0;
-            background: #1a1a2e;
+            overflow: hidden;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-family: 'Courier New', monospace;
+            min-height: -webkit-fill-available;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             color: #fff;
         }
+        
         #gameContainer {
-            text-align: center;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
+        
+        #canvasWrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
         canvas {
-            border: 4px solid #16213e;
+            border: 4px solid #e94560;
+            border-radius: 8px;
             background: #0f3460;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
+            box-shadow: 0 8px 32px rgba(233, 69, 96, 0.3), 
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
         }
+        
+        /* Desktop UI Stats Bar */
         #ui {
-            margin-top: 20px;
+            margin-top: 16px;
+            font-size: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .stat {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 18px;
+            background: linear-gradient(180deg, #2d2d4a 0%, #1a1a2e 100%);
+            border: 2px solid #e94560;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-icon {
             font-size: 18px;
         }
-        .stat {
-            display: inline-block;
-            margin: 0 15px;
-            padding: 10px 20px;
-            background: #16213e;
-            border-radius: 5px;
-        }
+        
+        /* Start Screen */
         #startScreen {
-            position: absolute;
-            background: rgba(0,0,0,0.8);
-            padding: 40px;
-            border-radius: 10px;
-            z-index: 10;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(15, 52, 96, 0.95) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
         }
+        
         #startScreen h1 {
-            margin: 0 0 20px 0;
-            font-size: 36px;
-            color: #e94560;
+            margin: 0 0 12px 0;
+            font-size: clamp(28px, 8vw, 48px);
+            background: linear-gradient(180deg, #FFD700 0%, #FF6B35 50%, #e94560 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            filter: drop-shadow(0 4px 8px rgba(233, 69, 96, 0.5));
+            text-align: center;
         }
+        
+        #startScreen .subtitle {
+            font-size: clamp(14px, 4vw, 18px);
+            color: #a0a0a0;
+            margin-bottom: 24px;
+        }
+        
+        .controls-info {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        .controls-info h3 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            color: #e94560;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .controls-info p {
+            margin: 6px 0;
+            font-size: 14px;
+            color: #ccc;
+        }
+        
+        .controls-info .mobile-only {
+            display: none;
+        }
+        
+        .touch-device .controls-info .desktop-only {
+            display: none;
+        }
+        
+        .touch-device .controls-info .mobile-only {
+            display: block;
+        }
+        
         #startScreen button {
-            padding: 15px 30px;
-            font-size: 20px;
-            background: #e94560;
+            padding: 18px 48px;
+            font-size: clamp(18px, 5vw, 24px);
+            font-weight: 700;
+            background: linear-gradient(180deg, #e94560 0%, #c73e54 100%);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 12px;
             cursor: pointer;
-            font-family: 'Courier New', monospace;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: transform 0.15s, box-shadow 0.15s;
+            min-width: 200px;
+            min-height: 60px;
         }
+        
         #startScreen button:hover {
-            background: #ff6b6b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.5),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        #startScreen button:active {
+            transform: translateY(1px);
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+        
+        /* Portrait Warning */
+        #portraitWarning {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26, 26, 46, 0.98);
+            z-index: 200;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        #portraitWarning .rotate-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            animation: rotate-phone 2s ease-in-out infinite;
+        }
+        
+        @keyframes rotate-phone {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-20deg); }
+            75% { transform: rotate(20deg); }
+        }
+        
+        #portraitWarning h2 {
+            margin: 0 0 12px 0;
+            font-size: 24px;
+            color: #e94560;
+        }
+        
+        #portraitWarning p {
+            color: #a0a0a0;
+            font-size: 16px;
+        }
+        
+        /* Fullscreen Button */
+        #fullscreenBtn {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            width: 48px;
+            height: 48px;
+            background: rgba(26, 26, 46, 0.9);
+            border: 2px solid #e94560;
+            border-radius: 12px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.2s, transform 0.15s;
+        }
+        
+        #fullscreenBtn:hover {
+            background: rgba(233, 69, 96, 0.3);
+        }
+        
+        #fullscreenBtn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Touch Controls */
+        #touchControls {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 30;
+        }
+        
+        .touch-device #touchControls {
+            display: block;
+        }
+        
+        /* Virtual Joystick */
+        #joystickArea {
+            position: absolute;
+            left: 20px;
+            bottom: 20px;
+            width: 140px;
+            height: 140px;
+            pointer-events: auto;
+        }
+        
+        #joystickBase {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            left: 10px;
+            top: 10px;
+        }
+        
+        #joystickKnob {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(180deg, #e94560 0%, #c73e54 100%);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            left: 45px;
+            top: 45px;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.5);
+            transition: transform 0.05s;
+        }
+        
+        #joystickKnob.active {
+            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.8);
+        }
+        
+        /* Control Buttons */
+        #buttonArea {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 70px);
+            grid-template-rows: repeat(2, 70px);
+            gap: 12px;
+            pointer-events: auto;
+        }
+        
+        .touch-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .touch-btn .icon {
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+        
+        .touch-btn:active,
+        .touch-btn.active {
+            transform: scale(0.95);
+        }
+        
+        #gasBtn {
+            background: linear-gradient(180deg, #4CAF50 0%, #388E3C 100%);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            grid-column: 2;
+            grid-row: 1;
+        }
+        
+        #gasBtn.active {
+            box-shadow: 0 4px 25px rgba(76, 175, 80, 0.8);
+        }
+        
+        #brakeBtn {
+            background: linear-gradient(180deg, #f44336 0%, #c62828 100%);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+            grid-column: 1;
+            grid-row: 2;
+        }
+        
+        #brakeBtn.active {
+            box-shadow: 0 4px 25px rgba(244, 67, 54, 0.8);
+        }
+        
+        #driftBtn {
+            background: linear-gradient(180deg, #FF9800 0%, #F57C00 100%);
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+            grid-column: 2;
+            grid-row: 2;
+        }
+        
+        #driftBtn.active {
+            box-shadow: 0 4px 25px rgba(255, 152, 0, 0.8);
+        }
+        
+        #itemBtn {
+            background: linear-gradient(180deg, #9C27B0 0%, #7B1FA2 100%);
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4);
+            grid-column: 1;
+            grid-row: 1;
+        }
+        
+        #itemBtn.active {
+            box-shadow: 0 4px 25px rgba(156, 39, 176, 0.8);
+        }
+        
+        /* Hide desktop UI on touch devices */
+        .touch-device #ui {
+            display: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 850px) {
+            #ui {
+                margin-top: 12px;
+            }
+            
+            .stat {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            canvas {
+                border-width: 2px;
+            }
+            
+            #fullscreenBtn {
+                top: 10px;
+                right: 10px;
+                width: 44px;
+                height: 44px;
+            }
+        }
+        
+        /* Safe area padding for notched devices */
+        @supports (padding: env(safe-area-inset-bottom)) {
+            #joystickArea {
+                left: calc(20px + env(safe-area-inset-left));
+                bottom: calc(20px + env(safe-area-inset-bottom));
+            }
+            
+            #buttonArea {
+                right: calc(20px + env(safe-area-inset-right));
+                bottom: calc(20px + env(safe-area-inset-bottom));
+            }
+        }
+        
+        /* Loading animation */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(233, 69, 96, 0.3);
+            border-top-color: #e94560;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loadingScreen">
+        <div class="loading-spinner"></div>
+    </div>
+
     <div id="gameContainer">
+        <!-- Start Screen -->
         <div id="startScreen">
             <h1>🏁 RETRO KART RACING 🏁</h1>
-            <p>Arrow Keys to Drive</p>
-            <p>Space to Boost</p>
-            <button onclick="startGame()">START RACE</button>
+            <p class="subtitle">16-Bit Style Racing</p>
+            
+            <div class="controls-info">
+                <h3>Controls</h3>
+                <p class="desktop-only">↑ W: Accelerate &nbsp;|&nbsp; ↓ S: Brake</p>
+                <p class="desktop-only">← A / → D: Steer</p>
+                <p class="desktop-only">SHIFT: Drift &nbsp;|&nbsp; SPACE: Use Item</p>
+                <p class="mobile-only">Virtual joystick to steer</p>
+                <p class="mobile-only">Buttons: Gas, Brake, Drift, Item</p>
+            </div>
+            
+            <button onclick="startGame()">🏎️ START RACE</button>
         </div>
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <!-- Portrait Warning -->
+        <div id="portraitWarning">
+            <div class="rotate-icon">📱</div>
+            <h2>Rotate Your Device</h2>
+            <p>Please rotate to landscape mode for the best racing experience!</p>
+        </div>
+        
+        <!-- Game Canvas -->
+        <div id="canvasWrapper">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+        </div>
+        
+        <!-- Desktop Stats -->
         <div id="ui">
-            <span class="stat">LAP: <span id="lap">1/3</span></span>
-            <span class="stat">SPEED: <span id="speed">0</span> km/h</span>
-            <span class="stat">POSITION: <span id="position">1/4</span></span>
-            <span class="stat">TIME: <span id="time">0:00</span></span>
+            <span class="stat"><span class="stat-icon">🏅</span> LAP: <span id="lap">1/3</span></span>
+            <span class="stat"><span class="stat-icon">⚡</span> SPEED: <span id="speed">0</span> km/h</span>
+            <span class="stat"><span class="stat-icon">🏆</span> POS: <span id="position">1/4</span></span>
+            <span class="stat"><span class="stat-icon">⏱️</span> TIME: <span id="time">0:00.00</span></span>
         </div>
+        
+        <!-- Touch Controls -->
+        <div id="touchControls">
+            <div id="joystickArea">
+                <div id="joystickBase"></div>
+                <div id="joystickKnob"></div>
+            </div>
+            
+            <div id="buttonArea">
+                <button class="touch-btn" id="itemBtn">
+                    <span class="icon">🎁</span>
+                    ITEM
+                </button>
+                <button class="touch-btn" id="gasBtn">
+                    <span class="icon">⬆️</span>
+                    GAS
+                </button>
+                <button class="touch-btn" id="brakeBtn">
+                    <span class="icon">⬇️</span>
+                    BRAKE
+                </button>
+                <button class="touch-btn" id="driftBtn">
+                    <span class="icon">💨</span>
+                    DRIFT
+                </button>
+            </div>
+        </div>
+        
+        <!-- Fullscreen Button -->
+        <button id="fullscreenBtn" title="Toggle Fullscreen">⛶</button>
     </div>
+    
     <script src="game.js"></script>
 </body>
 </html>
