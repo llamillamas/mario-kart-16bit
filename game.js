@@ -1862,9 +1862,17 @@ window.startGame = startGame;
 
 // Auto-start when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => game.start());
+  document.addEventListener('DOMContentLoaded', () => {
+    game.start();
+    // Remove loading screen
+    const loadingScreen = document.getElementById('loadingScreen');
+    if (loadingScreen) loadingScreen.style.display = 'none';
+  });
 } else {
   game.start();
+  // Remove loading screen
+  const loadingScreen = document.getElementById('loadingScreen');
+  if (loadingScreen) loadingScreen.style.display = 'none';
 }
 
 // Export for module usage
